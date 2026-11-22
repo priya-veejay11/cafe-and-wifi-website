@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand brand-title fs-3 d-flex align-items-center gap-2" href="{{ url_for('home') }}">
+            <span>☕︎</span>
+            <span>Cafe <span class="text-warning">&</span> Wifi</span>
+        </a>
+        <a class="btn btn-warning fw-semibold" href="{{ url_for('add_cafe') }}">+ Add Cafe</a>
+    </div>
+</nav>
+<div class="container">
+    <form method="GET" action="{{ url_for('home') }}" class="row g-3 align-items-center bg-white p-3 rounded-3 shadow-sm mb-4">
+    <div class="col-md-5">
+        <input type="text" name="q" class="form-control" placeholder="Search by cafe name or location..." value="{{ request.args.get('q', '') }}">
+    </div>
+    <div class="col-auto d-flex flex-wrap gap-3 ms-md-2">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="wifi" id="filterWifi" {{ 'checked' if request.args.get('wifi') else '' }}>
+            <label class="form-check-label" for="filterWifi">WiFi</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="sockets" id="filterSockets" {{ 'checked' if request.args.get('sockets') else '' }}>
+            <label class="form-check-label" for="filterSockets">Sockets</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="toilet" id="filterToilet" {{ 'checked' if request.args.get('toilet') else '' }}>
+            <label class="form-check-label" for="filterToilet">Toilet</label>
+        </div>
+    </div>
+    <div class="col-auto ms-auto d-flex gap-2">
+        <button type="submit" class="btn btn-dark px-4">Filter</button>
+        <a href="{{ url_for('home') }}" class="btn btn-outline-secondary px-3">Reset</a>
+    </div>
+    </form>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for cafe in cafes %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ cafe.img_url }}" onerror="this.src='https://placehold.co/600x400?text=No+Image'" class="card-img-top" alt="{{ cafe.name }}" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ cafe.name }}</h5>
+                    <p class="card-text text-muted">📍 {{ cafe.location }}</p>
+                    <div class="row row-cols-2 g-1 small">
+                        <div class="col">💺 {{ cafe.seats }}</div>
+                        <div class="col">{{ '✅' if cafe.has_sockets else '❌' }} Sockets</div>
+                        <div class="col">☕ {{ cafe.coffee_price }}</div>
+                        <div class="col">{{ '✅' if cafe.has_toilet else '❌' }} Toilet</div>
+                        <div class="col">{{ '✅' if cafe.has_wifi else '❌' }} WiFi</div>
+                        <div class="col">{{ '✅' if cafe.can_take_calls else '❌' }} Calls</div>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between">
+                        <a href="{{ cafe.map_url }}" target="_blank" class="btn btn-outline-primary btn-sm">View on Map</a>
+                        <div class="d-flex gap-1">
+                            <a href="{{ url_for('edit_cafe', cafe_id=cafe.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                            <a href="{{ url_for('delete_cafe', cafe_id=cafe.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete {{ cafe.name }}?');">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
